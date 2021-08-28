@@ -37,8 +37,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("OK");
+  let long = req.body.longURL;
+  if (!long.startsWith('http://')) {
+    let long1 = 'http://'.concat(long);
+    urlDatabase[generateRandomString()] = long1;
+  }else {
+    urlDatabase[generateRandomString()] = req.body.longURL;
+  }
 })
 
 app.get("/urls/:shortURL", (req, res) => {
