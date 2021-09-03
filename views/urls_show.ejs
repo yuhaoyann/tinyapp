@@ -9,13 +9,21 @@
   <body>
 
     <%- include('./partials/_header') %>
-    
+
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-little">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
+      <form action="/urls/edit/<%= shortURL %>" method="POST">
+        <h5 class="card-little">Edit</h5>
+        <div>
+          <label for="longURL">New URL:</label>
+          <input type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em"> 
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
       <div class="card-footer text-muted"></div>
     </div>
     <!-- Bootstrap JS -->
