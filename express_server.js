@@ -15,10 +15,19 @@ const urlDatabase = {
 const users = {}
 
 function generateRandomString() {
-let out = '';
-let base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.length))
-return out;
+  let out = '';
+  let base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.length))
+  return out;
+}
+
+function findUserByEmail(email) {
+  for (let user in users) {
+    if (email === users[user].email) {
+      return user;
+    }
+  }
+  return undefined;
 }
 
 // app.get("/", (req, res) => {
@@ -94,16 +103,15 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  let id = '';
-  for (let user in users) {
-    if (users[user].email === req.body.email) {
-      id = users[user].id;
-      res.cookie('user_id', id);
+  if (findUserByEmail(req.body.email)) {
+    let user = findUserByEmail(req.body.email);
+    if (users[user].password === req.body.password){
+      res.cookie('user_id', users[user].id);
       res.redirect('/urls');
       return;
     }
   }
-  res.status(400).send('email not registered')
+  res.status(400).send('email & password do not match, or account has not been registered');
 });
 
 app.post("/logout", (req, res) => {
@@ -114,26 +122,25 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   let id = generateRandomString();
   let user = 'user'.concat(id);
-  for (let user in users) {
-    if (users[user].email === req.body.email) {
-      res.status(400).send('email registered');
-      return;
-    }
+  if (findUserByEmail(req.body.email)) {
+    res.status(400).send('email registered');
+    return;
   }
-    if (req.body.email === '') {
-      res.status(400).send('email cannot be empty');
-      return;
-    }
-    if (req.body.password === '') {
-      res.status(400).send('password cannot be empty');
-      return;
-    }
-    users[user] = {};
-    users[user].id = id;
-    users[user].email = req.body.email;
-    users[user].password = req.body.password;
-    res.cookie("user_id", id);
-    res.redirect('/urls');
+  if (req.body.email === '') {
+    res.status(400).send('email cannot be empty');
+    return;
+  }
+  if (req.body.password === '') {
+    res.status(400).send('password cannot be empty');
+    return;
+  }
+  users[user] = {
+    id: id,
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie("user_id", id);
+  res.redirect('/urls');
 })
 
 app.listen(PORT, () => {
