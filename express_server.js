@@ -32,27 +32,28 @@ for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.len
 return out;
 }
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 
-app.get("/hello", (req, res) => {
-  const templateVars = { greeting: 'Hello World' };
-  res.render("hello_world", templateVars);
-});
+// app.get("/hello", (req, res) => {
+//   const templateVars = { greeting: 'Hello World' };
+//   res.render("hello_world", templateVars);
+// });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const templateVars = { urls: urlDatabase, user: users['user'.concat(req.cookies.user_id)] };
+  console.log(users)
   res.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies["username"] };
+  const templateVars = { user: users['user'.concat(req.cookies.user_id)] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users['user'.concat(req.cookies.user_id)] };
   res.render("urls_show", templateVars);
 });
 
@@ -61,7 +62,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {username: req.cookies["username"] };
+  const templateVars = { user: users['user'.concat(req.cookies.user_id)] };
   res.render("urls_register", templateVars);
 });
 
@@ -99,12 +100,18 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  let id = '';
+  for (let user in users) {
+    if (users[user].email === req.body.email) {
+      id = users[user].id;
+    }
+  }
+  res.cookie('user_id', id);
   res.redirect('/urls');
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
