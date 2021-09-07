@@ -12,18 +12,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-}
+const users = {}
 
 function generateRandomString() {
 let out = '';
@@ -72,7 +61,7 @@ app.post("/urls", (req, res) => {
   if (!long.startsWith('http://')) {
     let long1 = 'http://'.concat(long);
     urlDatabase[short] = long1;
-  }else {
+  } else {
     urlDatabase[short] = req.body.longURL;
   }
   res.redirect(`/urls/${short}`);
@@ -104,10 +93,12 @@ app.post("/login", (req, res) => {
   for (let user in users) {
     if (users[user].email === req.body.email) {
       id = users[user].id;
+      res.cookie('user_id', id);
+      res.redirect('/urls');
+      return;
     }
   }
-  res.cookie('user_id', id);
-  res.redirect('/urls');
+  res.status(400).send('email not registered')
 });
 
 app.post("/logout", (req, res) => {
@@ -118,12 +109,26 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   let id = generateRandomString();
   let user = 'user'.concat(id);
-  users[user] = {};
-  users[user].id = id;
-  users[user].email = req.body.email;
-  users[user].password = req.body.password;
-  res.cookie("user_id", id);
-  res.redirect('/urls');
+  for (let user in users) {
+    if (users[user].email === req.body.email) {
+      res.status(400).send('email registered');
+      return;
+    }
+  }
+    if (req.body.email === '') {
+      res.status(400).send('email cannot be empty');
+      return;
+    }
+    if (req.body.password === '') {
+      res.status(400).send('password cannot be empty');
+      return;
+    }
+    users[user] = {};
+    users[user].id = id;
+    users[user].email = req.body.email;
+    users[user].password = req.body.password;
+    res.cookie("user_id", id);
+    res.redirect('/urls');
 })
 
 app.listen(PORT, () => {
