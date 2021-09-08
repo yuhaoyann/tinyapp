@@ -110,8 +110,11 @@ app.post("/login", (req, res) => {
       res.redirect('/urls');
       return;
     }
+    if (users[user].password !== req.body.password) {
+      res.status(403).send('incorrect password');
+    }
   }
-  res.status(400).send('email & password do not match, or account has not been registered');
+  res.status(400).send('email not registered');
 });
 
 app.post("/logout", (req, res) => {
