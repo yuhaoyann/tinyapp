@@ -114,7 +114,7 @@ app.post("/login", (req, res) => {
       res.status(403).send('incorrect password');
     }
   }
-  res.status(400).send('email not registered');
+  res.status(403).send('email not registered');
 });
 
 app.post("/logout", (req, res) => {
