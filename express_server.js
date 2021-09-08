@@ -56,7 +56,13 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users['user'.concat(req.cookies.user_id)] };
-  res.render("urls_show", templateVars);
+  if (!req.cookies.user_id) {
+    res.status(403).send('Please login to see urls');
+  } else if (urlDatabase[req.params.shortURL].userID  === req.cookies.user_id) {
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(403).send("This url does not belong to you, you can't see it");
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
