@@ -7,12 +7,9 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
+const urlDatabase = {};
 
-const users = {}
+const users = {};
 
 function generateRandomString() {
   let out = '';
@@ -40,8 +37,15 @@ function findUserByEmail(email) {
 // });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users['user'.concat(req.cookies.user_id)] };
-  console.log(users)
+  let urlUserDatabase = {};
+  for (url in urlDatabase) {
+    if (urlDatabase[url].userID === req.cookies.user_id) {
+      urlUserDatabase[url] = urlDatabase[url];
+    }
+  }
+  const templateVars = { urls: urlUserDatabase, user: users['user'.concat(req.cookies.user_id)] };
+  console.log(users);
+  console.log(urlDatabase);
   res.render('urls_index', templateVars);
 });
 
