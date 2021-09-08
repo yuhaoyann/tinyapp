@@ -96,7 +96,9 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/edit/:id", (req, res) => {
-  if (req.cookies.user_id) {
+  if (!req.cookies.user_id) {
+    res.status(403).send('Please login to edit urls');
+  } else if (urlDatabase[req.params.id].userID  === req.cookies.user_id) {
     let short = req.params.id;
     let long = req.body.longURL;
     if (!long.startsWith('http://')) {
@@ -107,13 +109,19 @@ app.post("/urls/edit/:id", (req, res) => {
     }
     res.redirect(`/urls`);
   } else {
-    res.redirect('/login');
+    res.status(403).send("This url does not belong to you, you can't edit it");
   }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  if (!req.cookies.user_id) {
+    res.status(403).send('Please login to delete urls');
+  } else if (urlDatabase[req.params.shortURL].userID  === req.cookies.user_id) {
+    delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
+  } else {
+    res.status(403).send("This url does not belong to you, you can't delete it");
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
