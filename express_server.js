@@ -70,15 +70,19 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  let short = generateRandomString();
-  let long = req.body.longURL;
-  if (!long.startsWith('http://')) {
-    let long1 = 'http://'.concat(long);
-    urlDatabase[short] = long1;
+  if (req.cookies.user_id) {
+    let short = generateRandomString();
+    let long = req.body.longURL;
+    if (!long.startsWith('http://')) {
+      let long1 = 'http://'.concat(long);
+      urlDatabase[short] = long1;
+    } else {
+      urlDatabase[short] = req.body.longURL;
+    }
+    res.redirect(`/urls/${short}`);
   } else {
-    urlDatabase[short] = req.body.longURL;
+    res.redirect('/login');
   }
-  res.redirect(`/urls/${short}`);
 });
 
 app.post("/urls/edit/:id", (req, res) => {
