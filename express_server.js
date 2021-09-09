@@ -5,7 +5,7 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
   keys: ['encrypt']
@@ -21,7 +21,7 @@ const users = {};
 
 app.get("/urls", (req, res) => {
   let urlUserDatabase = {};
-  for (url in urlDatabase) {
+  for (let url in urlDatabase) {
     if (urlDatabase[url].userID === req.session.user_id) {
       urlUserDatabase[url] = urlDatabase[url];
     }
@@ -87,7 +87,7 @@ app.post("/urls/edit/:id", (req, res) => {
     if (!long.startsWith('http://')) {
       let long1 = 'http://'.concat(long);
       urlDatabase[short] = { longURL: long1, userID: req.session.user_id };
-    }else {
+    } else {
       urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id };
     }
     res.redirect(`/urls`);
@@ -101,7 +101,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.status(403).send('Please login to delete urls');
   } else if (urlDatabase[req.params.shortURL].userID  === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+    res.redirect('/urls');
   } else {
     res.status(403).send("This url does not belong to you, you can't delete it");
   }
@@ -114,7 +114,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   if (getUserByEmail(req.body.email, users)) {
     let user = getUserByEmail(req.body.email, users);
-    if (bcrypt.compareSync(req.body.password, users[user].password)){
+    if (bcrypt.compareSync(req.body.password, users[user].password)) {
       req.session.user_id = users[user].id;
       res.redirect('/urls');
       return;
@@ -151,10 +151,10 @@ app.post("/register", (req, res) => {
     id: id,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
-  }
+  };
   req.session.user_id = id;
   res.redirect('/urls');
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
