@@ -1,24 +1,27 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-var cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+
+const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
+const bcrypt = require('bcrypt');
 
 const urlDatabase = {};
 
 const users = {};
 
-function generateRandomString() {
+const generateRandomString = () => {
   let out = '';
   let base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.length))
   return out;
 }
 
-function findUserByEmail(email) {
+const findUserByEmail = (email) => {
   for (let user in users) {
     if (email === users[user].email) {
       return user;
@@ -131,13 +134,14 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   if (findUserByEmail(req.body.email)) {
     let user = findUserByEmail(req.body.email);
-    if (users[user].password === req.body.password){
+    if (bcrypt.compareSync(req.body.password, users[user].password)){
       res.cookie('user_id', users[user].id);
       res.redirect('/urls');
       return;
     }
     if (users[user].password !== req.body.password) {
       res.status(403).send('incorrect password');
+      return;
     }
   }
   res.status(403).send('email not registered');
@@ -166,7 +170,7 @@ app.post("/register", (req, res) => {
   users[user] = {
     id: id,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   }
   res.cookie("user_id", id);
   res.redirect('/urls');
