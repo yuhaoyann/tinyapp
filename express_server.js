@@ -12,7 +12,7 @@ app.use(cookieSession({
 }));
 
 const methodOverride = require('method-override');
-app.use(methodOverride(_method));
+app.use(methodOverride('_method'));
 
 const bcrypt = require('bcrypt');
 
@@ -79,7 +79,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
-app.post("/urls/edit/:id", (req, res) => {
+app.put("/urls/edit/:id", (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('Please login to edit urls');
   } else if (urlDatabase[req.params.id].userID  === req.session.user_id) {
@@ -97,7 +97,7 @@ app.post("/urls/edit/:id", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('Please login to delete urls');
   } else if (urlDatabase[req.params.shortURL].userID  === req.session.user_id) {
@@ -128,12 +128,12 @@ app.post("/login", (req, res) => {
   res.status(403).send('email not registered');
 });
 
-app.post("/logout", (req, res) => {
+app.delete("/logout", (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
-app.post("/register", (req, res) => {
+app.put("/register", (req, res) => {
   let id = generateRandomString();
   let user = 'user'.concat(id);
   if (getUserByEmail(req.body.email, users)) {

@@ -11,7 +11,7 @@
       </div>
     </div>
       <% if (user) { %>
-        <form action="/logout" method="POST">
+        <form action="/logout?_method=DELETE" method="POST">
           <div class="navbar-nav">
             <a class="nav-item nav-link" style="margin: 1em">Logged In As: <%= user.email %></a>
             <button type="submit" class="btn btn-primary" style="margin: 1em">Logout</button>
