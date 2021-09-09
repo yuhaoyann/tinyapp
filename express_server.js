@@ -13,11 +13,18 @@ app.use(cookieSession({
 
 const bcrypt = require('bcrypt');
 
-const { getUserByEmail, generateRandomString } = require('./helpers.js');
+const { getUserByEmail } = require('./helpers.js');
 
 const urlDatabase = {};
 
 const users = {};
+
+const generateRandomString = () => {
+  let out = '';
+  let base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.length))
+  return out;
+}
 
 app.get("/urls", (req, res) => {
   let urlUserDatabase = {};
