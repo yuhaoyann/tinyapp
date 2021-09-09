@@ -24,9 +24,9 @@ const generateRandomString = () => {
   return out;
 }
 
-const findUserByEmail = (email) => {
-  for (let user in users) {
-    if (email === users[user].email) {
+const getUserByEmail = (email, database) => {
+  for (let user in database) {
+    if (email === database[user].email) {
       return user;
     }
   }
@@ -135,8 +135,8 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if (findUserByEmail(req.body.email)) {
-    let user = findUserByEmail(req.body.email);
+  if (getUserByEmail(req.body.email, users)) {
+    let user = getUserByEmail(req.body.email, users);
     if (bcrypt.compareSync(req.body.password, users[user].password)){
       req.session.user_id = users[user].id;
       res.redirect('/urls');
@@ -158,7 +158,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   let id = generateRandomString();
   let user = 'user'.concat(id);
-  if (findUserByEmail(req.body.email)) {
+  if (getUserByEmail(req.body.email, users)) {
     res.status(400).send('email registered');
     return;
   }
