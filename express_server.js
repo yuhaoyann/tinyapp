@@ -27,8 +27,6 @@ app.get("/urls", (req, res) => {
     }
   }
   const templateVars = { urls: urlUserDatabase, user: users['user'.concat(req.session.user_id)] };
-  console.log(users);
-  console.log(urlDatabase);
   res.render('urls_index', templateVars);
 });
 
