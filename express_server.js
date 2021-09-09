@@ -13,6 +13,8 @@ app.use(cookieSession({
 
 const bcrypt = require('bcrypt');
 
+const { getUserByEmail } = require('./helpers.js');
+
 const urlDatabase = {};
 
 const users = {};
@@ -23,24 +25,6 @@ const generateRandomString = () => {
   for (let i = 0; i < 6; i++) out += base.charAt(Math.floor(Math.random()*base.length))
   return out;
 }
-
-const getUserByEmail = (email, database) => {
-  for (let user in database) {
-    if (email === database[user].email) {
-      return user;
-    }
-  }
-  return undefined;
-}
-
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.get("/hello", (req, res) => {
-//   const templateVars = { greeting: 'Hello World' };
-//   res.render("hello_world", templateVars);
-// });
 
 app.get("/urls", (req, res) => {
   let urlUserDatabase = {};
