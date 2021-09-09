@@ -11,6 +11,9 @@ app.use(cookieSession({
   keys: ['encrypt']
 }));
 
+const methodOverride = require('method-override');
+app.use(methodOverride(_method));
+
 const bcrypt = require('bcrypt');
 
 const { getUserByEmail, generateRandomString } = require('./helpers.js');
