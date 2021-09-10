@@ -32,20 +32,21 @@ app.get("/urls", (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-app.get("/urls/all", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users['user'.concat(req.session.user_id)] };
-  res.render('urls_all', templateVars);
-  console.log(urlDatabase);
-  console.log(users);
-});
-
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: users['user'.concat(req.session.user_id)] };
   res.render("urls_new", templateVars);
 });
 
+app.get("/urls/all", (req, res) => {
+  const templateVars = { urls: urlDatabase, user: users['user'.concat(req.session.user_id)] };
+  res.render('urls_all', templateVars);
+  console.log(urlDatabase);
+  console.log(users);
+  console.log(new Date(Date.now()).toString());
+});
+
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users['user'.concat(req.session.user_id)] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users['user'.concat(req.session.user_id)], visits: urlDatabase[req.params.shortURL].visits };
   if (!req.session.user_id) {
     res.status(403).send('Please login to see urls');
   } else if (urlDatabase[req.params.shortURL].userID  === req.session.user_id) {
@@ -58,10 +59,8 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   urlDatabase[req.params.shortURL].clicks = urlDatabase[req.params.shortURL].clicks + 1;
   if (req.session.user_id) {
-    if (!urlDatabase[req.params.shortURL].visits.includes(req.session.user_id)) {
-      urlDatabase[req.params.shortURL].visits.push(req.session.user_id);
+    urlDatabase[req.params.shortURL].visits.push({ id: req.session.user_id, time: new Date(Date.now()).toString() });
     }
-  }
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
@@ -167,16 +166,6 @@ app.put("/register", (req, res) => {
   };
   req.session.user_id = id;
   res.redirect('/urls');
-});
-
-app.post("/count", (req, res) => {
-  urlDatabase[req.body.shortURL].clicks = urlDatabase[req.body.shortURL].clicks + 1;
-  if (req.session.user_id) {
-    if (!urlDatabase[req.body.shortURL].visits.includes(req.session.user_id)) {
-      urlDatabase[req.body.shortURL].visits.push(req.session.user_id);
-    }
-  }
-  res.redirect(urlDatabase[req.body.shortURL].longURL);
 });
 
 app.listen(PORT, () => {

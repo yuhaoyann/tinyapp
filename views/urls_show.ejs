@@ -26,7 +26,30 @@
               <button type="submit" class="btn btn-primary">Submit</button>
           </form>
         </div>
-    </div>
+      </div>
+      <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <h5 class="card-little">Registered Visitors</h5>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">userID</th>
+                <th scope="col">visit times</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (let visit of visits) { %>
+              <tr>
+                <td><%= visit.id %></td>
+                <td><%= visit.time %></td>
+              </tr>
+              <% } %>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
       <div class="card-footer text-muted"></div>
     </div>
     <!-- Bootstrap JS -->
