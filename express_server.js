@@ -16,10 +16,9 @@ app.use(methodOverride('_method'));
 
 const bcrypt = require('bcrypt');
 
-const { getUserByEmail, generateRandomString } = require('./helpers.js');
+const { getUserByEmail, generateRandomString, } = require('./helpers.js');
 
 const urlDatabase = {};
-
 const users = {};
 
 app.get("/urls", (req, res) => {
@@ -31,6 +30,13 @@ app.get("/urls", (req, res) => {
   }
   const templateVars = { urls: urlUserDatabase, user: users['user'.concat(req.session.user_id)] };
   res.render('urls_index', templateVars);
+});
+
+app.get("/urls/all", (req, res) => {
+  const templateVars = { urls: urlDatabase, user: users['user'.concat(req.session.user_id)] };
+  res.render('urls_all', templateVars);
+  console.log(urlDatabase);
+  console.log(users);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -50,6 +56,12 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  urlDatabase[req.params.shortURL].clicks = urlDatabase[req.params.shortURL].clicks + 1;
+  if (req.session.user_id) {
+    if (!urlDatabase[req.params.shortURL].visits.includes(req.session.user_id)) {
+      urlDatabase[req.params.shortURL].visits.push(req.session.user_id);
+    }
+  }
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
@@ -69,9 +81,9 @@ app.post("/urls", (req, res) => {
     let long = req.body.longURL;
     if (!long.startsWith('http://')) {
       let long1 = 'http://'.concat(long);
-      urlDatabase[short] = { longURL: long1, userID: req.session.user_id };
+      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [] };
     } else {
-      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id };
+      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [] };
     }
     res.redirect(`/urls/${short}`);
   } else {
@@ -87,9 +99,9 @@ app.put("/urls/edit/:id", (req, res) => {
     let long = req.body.longURL;
     if (!long.startsWith('http://')) {
       let long1 = 'http://'.concat(long);
-      urlDatabase[short] = { longURL: long1, userID: req.session.user_id };
+      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [] };
     } else {
-      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id };
+      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [] };
     }
     res.redirect(`/urls`);
   } else {
@@ -155,6 +167,16 @@ app.put("/register", (req, res) => {
   };
   req.session.user_id = id;
   res.redirect('/urls');
+});
+
+app.post("/count", (req, res) => {
+  urlDatabase[req.body.shortURL].clicks = urlDatabase[req.body.shortURL].clicks + 1;
+  if (req.session.user_id) {
+    if (!urlDatabase[req.body.shortURL].visits.includes(req.session.user_id)) {
+      urlDatabase[req.body.shortURL].visits.push(req.session.user_id);
+    }
+  }
+  res.redirect(urlDatabase[req.body.shortURL].longURL);
 });
 
 app.listen(PORT, () => {
