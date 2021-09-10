@@ -7,6 +7,15 @@ const getUserByEmail = (email, database) => {
   return undefined;
 };
 
+const checkID = (id, database) => {
+  for (let data of database) {
+    if (data.id === id) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const generateRandomString = () => {
   let out = '';
   let base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -14,4 +23,4 @@ const generateRandomString = () => {
   return out;
 };
 
-module.exports = { getUserByEmail, generateRandomString };
+module.exports = { getUserByEmail, generateRandomString, checkID };

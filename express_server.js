@@ -16,7 +16,7 @@ app.use(methodOverride('_method'));
 
 const bcrypt = require('bcrypt');
 
-const { getUserByEmail, generateRandomString, } = require('./helpers.js');
+const { getUserByEmail, generateRandomString, checkID } = require('./helpers.js');
 
 const urlDatabase = {};
 const users = {};
@@ -40,9 +40,6 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/all", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users['user'.concat(req.session.user_id)] };
   res.render('urls_all', templateVars);
-  console.log(urlDatabase);
-  console.log(users);
-  console.log(new Date(Date.now()).toString());
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -59,7 +56,12 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   urlDatabase[req.params.shortURL].clicks = urlDatabase[req.params.shortURL].clicks + 1;
   if (req.session.user_id) {
-    urlDatabase[req.params.shortURL].visits.push({ id: req.session.user_id, time: new Date(Date.now()).toString() });
+    if (checkID(req.session.user_id, urlDatabase[req.params.shortURL].visits)) {
+      urlDatabase[req.params.shortURL].visits.push({ id: req.session.user_id, time: new Date(Date.now()).toString() });
+    } else {
+      urlDatabase[req.params.shortURL].visits.push({ id: req.session.user_id, time: new Date(Date.now()).toString() });
+      urlDatabase[req.params.shortURL].unique = urlDatabase[req.params.shortURL].unique + 1;
+    }
     }
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
@@ -80,9 +82,9 @@ app.post("/urls", (req, res) => {
     let long = req.body.longURL;
     if (!long.startsWith('http://')) {
       let long1 = 'http://'.concat(long);
-      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [] };
+      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [], unique: 0 };
     } else {
-      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [] };
+      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [], unique: 0 };
     }
     res.redirect(`/urls/${short}`);
   } else {
@@ -98,9 +100,9 @@ app.put("/urls/edit/:id", (req, res) => {
     let long = req.body.longURL;
     if (!long.startsWith('http://')) {
       let long1 = 'http://'.concat(long);
-      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [] };
+      urlDatabase[short] = { longURL: long1, userID: req.session.user_id, clicks: 0, visits: [], unique: 0 };
     } else {
-      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [] };
+      urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, clicks: 0, visits: [], unique: 0 };
     }
     res.redirect(`/urls`);
   } else {
